@@ -10,18 +10,18 @@ import { CreateAttractionDto } from './create-attraction.dto';
 export class AttractionService {
   constructor(
     @InjectRepository(Attraction)
-    private usersRepository: Repository<Attraction>,
+    private attractionRepository: Repository<Attraction>,
   ) {}
 
   findAll(): Promise<Attraction[]> {
-    return this.usersRepository.find({ relations: { tags: true } });
+    return this.attractionRepository.find({ relations: { tags: true } });
   }
 
   findOne(id: number): Promise<Attraction | null> {
-    return this.usersRepository.findOneBy({ id });
+    return this.attractionRepository.findOneBy({ id });
   }
 
   async create(dto: CreateAttractionDto): Promise<void> {
-    await this.usersRepository.save(dto);
+    await this.attractionRepository.save(dto);
   }
 }

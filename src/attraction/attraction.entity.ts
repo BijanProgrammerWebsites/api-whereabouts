@@ -12,7 +12,7 @@ import { WorkHoursType } from './types/work-hours.type';
 
 @Entity()
 export class Attraction {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column('text', { default: '' })
@@ -33,13 +33,13 @@ export class Attraction {
   @Column('int', { default: 0 })
   ratingCount: number;
 
-  @Column('json', { array: true, default: [] })
+  @Column('jsonb', { array: false, default: [] })
   workHours: WorkHoursType[];
 
   @ManyToMany(() => Tag)
   @JoinTable()
   tags: Tag[];
 
-  @Column('text', { default: '' })
+  @Column('text', { default: '', nullable: true })
   phone: string;
 }
