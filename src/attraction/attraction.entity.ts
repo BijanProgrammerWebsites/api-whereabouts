@@ -42,4 +42,16 @@ export class Attraction {
 
   @Column('text', { default: '', nullable: true })
   phone: string;
+
+  @Column('text', { default: '' })
+  url: string;
+
+  @Column('text', { default: '' })
+  address: string;
+
+  @Column('jsonb', { array: false, default: [] })
+  carousel: string[];
+
+  @Column('text', { default: '' })
+  body: string;
 }
