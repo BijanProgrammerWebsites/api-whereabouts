@@ -32,7 +32,6 @@ export class AttractionService {
     if (matchingAttractionIds.length > 0) {
       return this.attractionRepository
         .createQueryBuilder('attraction')
-        .select('attraction.title')
         .leftJoinAndSelect('attraction.tags', 'tag')
         .where('attraction.id IN (:...ids)', { ids: matchingAttractionIds })
         .getMany();
