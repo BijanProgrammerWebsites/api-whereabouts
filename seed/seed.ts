@@ -2,10 +2,10 @@ import 'dotenv/config';
 
 import { DataSource } from 'typeorm';
 
-import db from '../../data/db.json';
+import db from './data/db.json';
 
-import { Attraction } from '../attraction/attraction.entity';
-import { Tag } from '../tag/tag.entity';
+import { Attraction } from '../src/attraction/attraction.entity';
+import { Tag } from '../src/tag/tag.entity';
 
 const datasource = new DataSource({
   type: 'postgres',
