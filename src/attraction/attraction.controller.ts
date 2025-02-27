@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseArrayPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 
 import { AttractionService } from './attraction.service';
 import { Attraction } from './attraction.entity';
@@ -9,8 +17,22 @@ export class AttractionController {
   constructor(private attractionService: AttractionService) {}
 
   @Get()
-  async findAll(): Promise<Attraction[]> {
-    return this.attractionService.findAll();
+  async findAll(
+    @Query(
+      'tag',
+      new ParseArrayPipe({ items: Number, separator: ',', optional: true }),
+    )
+    tags?: number[],
+  ): Promise<Attraction[]> {
+    console.log(typeof tags);
+    console.log(tags);
+
+    return this.attractionService.findAll(tags ?? []);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: number): Promise<Attraction | null> {
+    return this.attractionService.findOne(id);
   }
 
   @Post()

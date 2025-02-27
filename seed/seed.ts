@@ -25,12 +25,20 @@ datasource.initialize().then(async () => {
 });
 
 async function seedTags(): Promise<void> {
-  const tags = [
-    ...new Set(db.attractions.flatMap((attraction) => attraction.tags)),
-  ];
+  const tags = db.attractions.flatMap((attraction) => attraction.tags);
+
+  const idSet = new Set<number>();
+  const uniqueTags: Tag[] = tags.filter((tag) => {
+    if (idSet.has(tag.id)) {
+      return false;
+    }
+
+    idSet.add(tag.id);
+    return true;
+  });
 
   const tagsRepository = datasource.getRepository(Tag);
-  await tagsRepository.save(tags as Tag[]);
+  await tagsRepository.save(uniqueTags);
 }
 
 async function seedAttractions(): Promise<void> {
