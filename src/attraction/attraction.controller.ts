@@ -18,16 +18,25 @@ export class AttractionController {
 
   @Get()
   async findAll(
+    @Query('query') query?: string,
     @Query(
       'tag',
       new ParseArrayPipe({ items: Number, separator: ',', optional: true }),
     )
     tags?: number[],
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('orderField') orderField?: string,
+    @Query('orderDirection') orderDirection?: 'ASC' | 'DESC',
   ): Promise<Attraction[]> {
-    console.log(typeof tags);
-    console.log(tags);
-
-    return this.attractionService.findAll(tags ?? []);
+    return this.attractionService.findAll({
+      query,
+      tags: tags ?? [],
+      page,
+      limit,
+      orderField,
+      orderDirection,
+    });
   }
 
   @Get(':id')

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 
 import { Attraction } from './attraction.entity';
 import { CreateAttractionDto } from './create-attraction.dto';
+import { AttractionQueryBuilder } from './attraction.query-builder';
 
 @Injectable()
 export class AttractionService {
@@ -13,31 +14,27 @@ export class AttractionService {
     private attractionRepository: Repository<Attraction>,
   ) {}
 
-  async findAll(tags: number[]): Promise<Attraction[]> {
-    if (tags.length === 0) {
-      return this.attractionRepository.find({ relations: ['tags'] });
+  async findAll(params: {
+    tags?: number[];
+    query?: string;
+    page?: number;
+    limit?: number;
+    orderField?: string;
+    orderDirection?: 'ASC' | 'DESC';
+  }): Promise<Attraction[]> {
+    const queryBuilder = new AttractionQueryBuilder(this.attractionRepository)
+      .withTextSearch(params.query)
+      .withAllTags(params.tags);
+
+    if (params.orderField) {
+      queryBuilder.orderBy(params.orderField, params.orderDirection);
     }
 
-    const matchingAttractionIds = await this.attractionRepository
-      .createQueryBuilder('attraction')
-      .select('attraction.id')
-      .innerJoin('attraction.tags', 'tag')
-      .where('tag.id IN (:...tags)', { tags })
-      .groupBy('attraction.id')
-      .having('COUNT(DISTINCT tag.id) = :tagCount', { tagCount: tags.length })
-      .getRawMany()
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      .then((results) => results.map((result) => result.attraction_id));
-
-    if (matchingAttractionIds.length > 0) {
-      return this.attractionRepository
-        .createQueryBuilder('attraction')
-        .leftJoinAndSelect('attraction.tags', 'tag')
-        .where('attraction.id IN (:...ids)', { ids: matchingAttractionIds })
-        .getMany();
+    if (params.page && params.limit) {
+      queryBuilder.withPagination(params.page, params.limit);
     }
 
-    return [];
+    return queryBuilder.getResult();
   }
 
   async findOne(id: number): Promise<Attraction | null> {
