@@ -43,7 +43,7 @@ export class Attraction {
   @Column('text', { default: '', nullable: true })
   phone: string;
 
-  @Column('text', { default: '' })
+  @Column('text', { select: false, default: '' })
   url: string;
 
   @Column('text', { default: '' })
@@ -52,6 +52,6 @@ export class Attraction {
   @Column('jsonb', { array: false, default: [] })
   carousel: string[];
 
-  @Column('text', { default: '' })
+  @Column('text', { select: false, default: '' })
   body: string;
 }

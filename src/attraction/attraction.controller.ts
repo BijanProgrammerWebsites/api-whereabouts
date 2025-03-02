@@ -1,42 +1,18 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseArrayPipe,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
-import { AttractionService } from './attraction.service';
+import { CreateAttractionDto } from './dto/create-attraction.dto';
+import { FindAllAttractionsDto } from './dto/find-all-attractions.dto';
+
 import { Attraction } from './attraction.entity';
-import { CreateAttractionDto } from './create-attraction.dto';
+import { AttractionService } from './attraction.service';
 
 @Controller('attraction')
 export class AttractionController {
   constructor(private attractionService: AttractionService) {}
 
   @Get()
-  async findAll(
-    @Query('query') query?: string,
-    @Query(
-      'tag',
-      new ParseArrayPipe({ items: Number, separator: ',', optional: true }),
-    )
-    tags?: number[],
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('orderField') orderField?: string,
-    @Query('orderDirection') orderDirection?: 'ASC' | 'DESC',
-  ): Promise<Attraction[]> {
-    return this.attractionService.findAll({
-      query,
-      tags: tags ?? [],
-      page,
-      limit,
-      orderField,
-      orderDirection,
-    });
+  async findAll(@Query() dto: FindAllAttractionsDto): Promise<Attraction[]> {
+    return this.attractionService.findAll(dto);
   }
 
   @Get(':id')

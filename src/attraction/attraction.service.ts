@@ -4,8 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Attraction } from './attraction.entity';
-import { CreateAttractionDto } from './create-attraction.dto';
+import { CreateAttractionDto } from './dto/create-attraction.dto';
 import { AttractionQueryBuilder } from './attraction.query-builder';
+import { FindAllAttractionsDto } from './dto/find-all-attractions.dto';
 
 @Injectable()
 export class AttractionService {
@@ -14,31 +15,46 @@ export class AttractionService {
     private attractionRepository: Repository<Attraction>,
   ) {}
 
-  async findAll(params: {
-    tags?: number[];
-    query?: string;
-    page?: number;
-    limit?: number;
-    orderField?: string;
-    orderDirection?: 'ASC' | 'DESC';
-  }): Promise<Attraction[]> {
-    const queryBuilder = new AttractionQueryBuilder(this.attractionRepository)
-      .withTextSearch(params.query)
-      .withAllTags(params.tags);
+  private get columns(): (keyof Attraction)[] {
+    return this.attractionRepository.metadata.columns.map(
+      (column) => column.propertyName,
+    ) as (keyof Attraction)[];
+  }
 
-    if (params.orderField) {
-      queryBuilder.orderBy(params.orderField, params.orderDirection);
+  async findAll({
+    query,
+    tags,
+    page,
+    limit,
+    orderField,
+    orderDirection,
+  }: FindAllAttractionsDto): Promise<Attraction[]> {
+    const queryBuilder = new AttractionQueryBuilder(this.attractionRepository);
+
+    if (query && query.trim().length > 0) {
+      queryBuilder.withTextSearch(query.trim());
     }
 
-    if (params.page && params.limit) {
-      queryBuilder.withPagination(params.page, params.limit);
+    if (tags && tags.length > 0) {
+      queryBuilder.withAllTags(tags);
+    }
+
+    if (orderField) {
+      queryBuilder.withOrderBy(orderField, orderDirection);
+    }
+
+    if (page || limit) {
+      queryBuilder.withPagination(page, limit);
     }
 
     return queryBuilder.getResult();
   }
 
   async findOne(id: number): Promise<Attraction | null> {
-    return this.attractionRepository.findOneBy({ id });
+    return this.attractionRepository.findOne({
+      where: { id },
+      select: this.columns,
+    });
   }
 
   async create(dto: CreateAttractionDto): Promise<void> {
